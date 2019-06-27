@@ -434,10 +434,31 @@ function runLevel(level,Display){
 
 //Whenever the player dies, the current level is restarted.
 //When a level is completed, we move on to the next level
+/*
 async function runGame(plans,Display){
     for(let level=0; level < plans.length; ){
         let status=await runLevel(new Level(plans[level]),Display);
         if(status=="won") level++;
     }
     console.log("You've won!");
+}
+*/
+
+//modified runGame to implement lives.Game Over
+async function runGame(plans,Display){
+  let lives=3;
+  for(let level=0;level < plans.length && lives > 0;){
+    //console.log(`Level ${level + 1}, lives: ${lives}`);
+    let status=await runLevel(new Level(plans[level]),Display);
+    if(status=="won") level++;
+    else lives--;
+  }
+  if(lives > 0){
+    //console.log("You've won!");
+    alert("You've won!");
+  }
+  else{
+    //console.log("Game over");
+    alert("Game over");
+  }
 }
