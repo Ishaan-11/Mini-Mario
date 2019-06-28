@@ -8,7 +8,9 @@
 .wall{ background: white; }
 
 .actor{ position: absolute; }
-.coin{ background: rgb(241,229,89); }
+.coin{ background: rgb(241,229,89);
+       border-radius: 10px;
+    }
 .player{ background: rgb(64,64,64); }
 
 .monster{ background: purple}
