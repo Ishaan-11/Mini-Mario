@@ -120,10 +120,26 @@ class Coin {
   
   Coin.prototype.size = new Vec(0.6, 0.6);
 
+//Monster actor
+const monsterSpeed=4;
+class Monster{
+    constructor(pos){ this.pos = pos;}
+    
+    get type(){ return "monster";}
+
+    static create(pos){
+      return new Monster(pos.plus(new Vec(0,-1)));
+    }
+  }
+
+  Monster.prototype.size = new Vec(1.2,2);
+
+
  const levelChars = {
     ".": "empty", "#": "wall", "+": "lava",
     "@": Player, "o": Coin,
-    "=": Lava, "|": Lava, "v": Lava
+    "=": Lava, "|": Lava, "v": Lava,
+    "M": Monster
   };
 //That gives us all the parts needed to create a Level instance
 //let simpleLevel=new Level(simpleLevelPlan);
@@ -316,6 +332,17 @@ Coin.prototype.collide=function(state){
     return new State(state.level,filtered,status);
 };
 
+Monster.prototype.collide=function(state){
+  let player = state.player;
+  if(player.pos.y + player.size.y < this.pos.y + 0.5){
+    let filtered=state.actors.filter(a=>a!=this);
+    return new State(state.level,filtered,state.status);
+  }
+  else{
+    return new State(state.level,state.actors,"lost");
+  }
+}
+
 //lava update
 Lava.prototype.update=function(time,state){
     let newPos=this.pos.plus(this.speed.times(time));
@@ -368,6 +395,15 @@ Player.prototype.update=function(time,state,keys){
     }
     return new Player(pos,new Vec(xSpeed,ySpeed));
 };
+
+//monster update
+Monster.prototype.update=function(time,state){
+  let player=state.player;
+  let speed=(player.pos.x < this.pos.x ? -1:1) * time * monsterSpeed;
+  let newPos=new Vec(this.pos.x + speed,this.pos.y);
+  if(state.level.touches(newPos,this.size,"wall"))return this;
+  else return new Monster(newPos);
+}
 
 //tracking keys
 
@@ -432,10 +468,7 @@ function runLevel(level,Display){
     });
 }
 
-//Whenever the player dies, the current level is restarted.
-//When a level is completed, we move on to the next level
-/*
-async function runGame(plans,Display){
+/*async function runGame(plans,Display){
     for(let level=0; level < plans.length; ){
         let status=await runLevel(new Level(plans[level]),Display);
         if(status=="won") level++;
